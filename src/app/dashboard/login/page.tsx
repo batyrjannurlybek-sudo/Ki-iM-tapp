@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff, Store } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useT } from "@/lib/i18n-context";
@@ -23,7 +22,6 @@ function localizeError(message: string, t: Dict): string {
 }
 
 export default function LoginPage() {
-  const router = useRouter();
   const t = useT();
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
@@ -31,6 +29,14 @@ export default function LoginPage() {
   const [showPw, setShowPw] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
+
+  // If already signed in, go straight to the dashboard.
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) window.location.assign("/dashboard");
+    });
+  }, []);
 
   function originUrl() {
     return typeof window !== "undefined" ? window.location.origin : "";
@@ -73,18 +79,20 @@ export default function LoginPage() {
       if (!data.session) {
         setNotice({ type: "info", text: t.signupOk });
         setMode("signin");
+        setBusy(false);
       } else {
-        router.push("/dashboard");
-        router.refresh();
+        window.location.assign("/dashboard");
       }
       return;
     }
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setBusy(false);
-    if (error) return setNotice({ type: "error", text: localizeError(error.message, t) });
-    router.push("/dashboard");
-    router.refresh();
+    if (error) {
+      setBusy(false);
+      return setNotice({ type: "error", text: localizeError(error.message, t) });
+    }
+    // Hard navigation so the server immediately sees the new session cookie.
+    window.location.assign("/dashboard");
   }
 
   const noticeStyles = {

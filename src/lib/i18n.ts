@@ -166,6 +166,7 @@ const kk = {
   inStock: "Бар",
   outStock: "Жоқ",
   availability: "Қолжетімділік",
+  availabilityWarning: "Бару алдында дүкеннен WhatsApp арқылы бар-жоғын нақтылаңыз.",
   // auth extras
   continueWithGoogle: "Google арқылы жалғастыру",
   orDivider: "немесе",
@@ -362,6 +363,7 @@ const ru: typeof kk = {
   inStock: "В наличии",
   outStock: "Нет",
   availability: "Наличие",
+  availabilityWarning: "Перед поездкой уточните наличие у магазина в WhatsApp.",
   continueWithGoogle: "Продолжить с Google",
   orDivider: "или",
   forgotPassword: "Забыли пароль?",

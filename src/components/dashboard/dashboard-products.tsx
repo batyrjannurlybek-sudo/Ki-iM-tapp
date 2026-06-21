@@ -102,71 +102,76 @@ export function DashboardProducts({ products }: { products: Product[] }) {
         filtered.map((p) => {
         const busy = pending === p.id;
         return (
-          <div key={p.id} className="flex items-center gap-3 rounded-xl border p-3">
-            <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
-              {p.images?.[0] && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.images[0]} alt="" className="h-full w-full object-cover" />
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{p.title}</p>
-              <p className="text-xs text-muted-foreground">{formatPrice(p.price)}</p>
-              <div className="mt-1 flex items-center gap-2">
-                <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${statusColor[p.status] ?? "bg-muted"}`}>
+          <div key={p.id} className="space-y-3 rounded-xl border p-3">
+            <div className="flex items-center gap-3">
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+                {p.images?.[0] && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.images[0]} alt="" className="h-full w-full object-cover" />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{p.title}</p>
+                <p className="text-xs text-muted-foreground">{formatPrice(p.price)}</p>
+                <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${statusColor[p.status] ?? "bg-muted"}`}>
                   {productStatusName(p.status, t)}
                 </span>
-                {/* In-stock / out-of-stock quick toggle */}
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => toggleAvailability(p.id, p.stock_quantity === 0)}
-                  aria-label={t.availability}
-                  className={cn(
-                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors",
-                    p.stock_quantity > 0
-                      ? "bg-green-100 text-green-700 hover:bg-green-200"
-                      : "bg-muted text-muted-foreground hover:bg-accent"
-                  )}
-                >
-                  <span className={cn("h-1.5 w-1.5 rounded-full", p.stock_quantity > 0 ? "bg-green-600" : "bg-muted-foreground")} />
-                  {p.stock_quantity > 0 ? t.inStock : t.outStock}
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <Link href={`/dashboard/products/${p.id}/edit`} aria-label={t.act_edit}
+                  className="rounded-lg p-2 hover:bg-accent">
+                  <Pencil className="h-4 w-4" />
+                </Link>
+                {p.status !== "published" ? (
+                  <button disabled={busy} aria-label={t.act_publish} title={t.act_publish}
+                    onClick={() => changeStatus(p.id, "published")} className="rounded-lg p-2 hover:bg-accent">
+                    <Send className="h-4 w-4" />
+                  </button>
+                ) : (
+                  <button disabled={busy} aria-label={t.act_hide} title={t.act_hide}
+                    onClick={() => changeStatus(p.id, "hidden")} className="rounded-lg p-2 hover:bg-accent">
+                    <EyeOff className="h-4 w-4" />
+                  </button>
+                )}
+                {p.status === "hidden" && (
+                  <button disabled={busy} aria-label={t.act_show} title={t.act_show}
+                    onClick={() => changeStatus(p.id, "published")} className="rounded-lg p-2 hover:bg-accent">
+                    <Eye className="h-4 w-4" />
+                  </button>
+                )}
+                {p.status !== "archived" && (
+                  <button disabled={busy} aria-label={t.act_archive} title={t.act_archive}
+                    onClick={() => changeStatus(p.id, "archived")} className="rounded-lg p-2 hover:bg-accent">
+                    <Archive className="h-4 w-4" />
+                  </button>
+                )}
+                <button disabled={busy} aria-label={t.delete} title={t.delete}
+                  onClick={() => remove(p.id)} className="rounded-lg p-2 text-destructive hover:bg-destructive/10">
+                  <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-1">
-              <Link href={`/dashboard/products/${p.id}/edit`} aria-label={t.act_edit}
-                className="rounded-lg p-2 hover:bg-accent">
-                <Pencil className="h-4 w-4" />
-              </Link>
-              {p.status !== "published" ? (
-                <button disabled={busy} aria-label={t.act_publish} title={t.act_publish}
-                  onClick={() => changeStatus(p.id, "published")} className="rounded-lg p-2 hover:bg-accent">
-                  <Send className="h-4 w-4" />
-                </button>
-              ) : (
-                <button disabled={busy} aria-label={t.act_hide} title={t.act_hide}
-                  onClick={() => changeStatus(p.id, "hidden")} className="rounded-lg p-2 hover:bg-accent">
-                  <EyeOff className="h-4 w-4" />
-                </button>
+
+            {/* Prominent availability toggle */}
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => toggleAvailability(p.id, p.stock_quantity === 0)}
+              className={cn(
+                "flex w-full items-center justify-between rounded-lg border px-3 py-2.5 transition-colors disabled:opacity-50",
+                p.stock_quantity > 0 ? "border-green-200 bg-green-50" : "bg-muted"
               )}
-              {p.status === "hidden" && (
-                <button disabled={busy} aria-label={t.act_show} title={t.act_show}
-                  onClick={() => changeStatus(p.id, "published")} className="rounded-lg p-2 hover:bg-accent">
-                  <Eye className="h-4 w-4" />
-                </button>
-              )}
-              {p.status !== "archived" && (
-                <button disabled={busy} aria-label={t.act_archive} title={t.act_archive}
-                  onClick={() => changeStatus(p.id, "archived")} className="rounded-lg p-2 hover:bg-accent">
-                  <Archive className="h-4 w-4" />
-                </button>
-              )}
-              <button disabled={busy} aria-label={t.delete} title={t.delete}
-                onClick={() => remove(p.id)} className="rounded-lg p-2 text-destructive hover:bg-destructive/10">
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
+            >
+              <span className="text-sm font-medium">{t.availability}</span>
+              <span className="flex items-center gap-2">
+                <span className={cn("text-sm font-semibold", p.stock_quantity > 0 ? "text-green-700" : "text-muted-foreground")}>
+                  {p.stock_quantity > 0 ? t.inStock : t.outStock}
+                </span>
+                <span className={cn("relative h-6 w-11 rounded-full transition-colors", p.stock_quantity > 0 ? "bg-green-500" : "bg-zinc-300")}>
+                  <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all", p.stock_quantity > 0 ? "left-[22px]" : "left-0.5")} />
+                </span>
+              </span>
+            </button>
           </div>
         );
         })

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MapPin, MessageCircle, Store as StoreIcon } from "lucide-react";
+import { AlertTriangle, MapPin, MessageCircle, Store as StoreIcon } from "lucide-react";
 import { ProductGallery } from "@/components/product-gallery";
 import { Badge } from "@/components/ui/badge";
 import type { Metadata } from "next";
@@ -73,6 +73,12 @@ export default async function ProductPage({ params }: { params: { id: string } }
             {product.description}
           </p>
         )}
+
+        {/* Availability disclaimer for buyers */}
+        <div className="flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{t.availabilityWarning}</span>
+        </div>
 
         {store && (
           <div className="space-y-3 rounded-2xl border p-4">
