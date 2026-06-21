@@ -32,6 +32,8 @@ export interface Store {
   logo_url: string | null;
   cover_url: string | null;
   status: StoreStatus;
+  is_verified: boolean;
+  plan_until: string | null;
   created_at: string;
   updated_at: string;
 }

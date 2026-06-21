@@ -52,6 +52,38 @@ export async function removeProduct(formData: FormData) {
   revalidatePath("/admin");
 }
 
+/** Grant a verified badge + 2-year founding plan (first 20 stores). */
+export async function verifyStoreFounding(formData: FormData) {
+  await guard();
+  const id = String(formData.get("id"));
+  const until = new Date();
+  until.setFullYear(until.getFullYear() + 2);
+  const supabase = createAdminClient();
+  await supabase.from("stores").update({ is_verified: true, plan_until: until.toISOString() }).eq("id", id);
+  revalidatePath("/admin");
+}
+
+export async function unverifyStore(formData: FormData) {
+  await guard();
+  const id = String(formData.get("id"));
+  const supabase = createAdminClient();
+  await supabase.from("stores").update({ is_verified: false }).eq("id", id);
+  revalidatePath("/admin");
+}
+
+/** Extend the store's plan by one month (e.g. after a paid subscription). */
+export async function grantStoreMonth(formData: FormData) {
+  await guard();
+  const id = String(formData.get("id"));
+  const supabase = createAdminClient();
+  const { data } = await supabase.from("stores").select("plan_until").eq("id", id).single();
+  const now = new Date();
+  const base = data?.plan_until && new Date(data.plan_until) > now ? new Date(data.plan_until) : now;
+  base.setMonth(base.getMonth() + 1);
+  await supabase.from("stores").update({ plan_until: base.toISOString() }).eq("id", id);
+  revalidatePath("/admin");
+}
+
 export async function addBanner(formData: FormData) {
   await guard();
   const file = formData.get("image") as File | null;

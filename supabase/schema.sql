@@ -55,6 +55,8 @@ create table if not exists stores (
   logo_url      text,
   cover_url     text,
   status        store_status not null default 'pending',
+  is_verified   boolean not null default false,
+  plan_until    timestamptz,
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );

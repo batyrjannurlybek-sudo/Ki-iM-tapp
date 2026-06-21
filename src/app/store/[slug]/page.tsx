@@ -3,6 +3,7 @@ import { Instagram, MapPin, MessageCircle } from "lucide-react";
 import { ProductGrid } from "@/components/product-grid";
 import type { Metadata } from "next";
 import { getStoreBySlug, getStoreProducts } from "@/services/stores";
+import { VerifiedBadge } from "@/components/verified-badge";
 import { mapsLink, whatsappLink } from "@/lib/utils";
 import { getT } from "@/lib/i18n-server";
 import { tpl } from "@/lib/i18n";
@@ -50,7 +51,10 @@ export default async function StorePage({ params }: { params: { slug: string } }
           )}
         </div>
         <div className="flex-1 space-y-1">
-          <h1 className="text-xl font-bold">{store.name}</h1>
+          <h1 className="flex items-center gap-1.5 text-xl font-bold">
+            {store.name}
+            {store.is_verified && <VerifiedBadge className="h-5 w-5" />}
+          </h1>
           {store.description && (
             <p className="text-sm text-muted-foreground">{store.description}</p>
           )}

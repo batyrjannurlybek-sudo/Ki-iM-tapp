@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n-server";
 import { getAllStores } from "@/services/stores";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,10 @@ export default async function StoresPage() {
                   </span>
                 )}
               </div>
-              <span className="line-clamp-2 text-sm font-medium leading-tight">{s.name}</span>
+              <span className="flex items-center justify-center gap-1 text-sm font-medium leading-tight">
+                <span className="line-clamp-2">{s.name}</span>
+                {s.is_verified && <VerifiedBadge className="h-4 w-4" />}
+              </span>
               {s.address && (
                 <span className="line-clamp-1 text-xs text-muted-foreground">{s.address}</span>
               )}

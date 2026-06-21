@@ -9,10 +9,14 @@ import {
   adminLogin,
   adminLogout,
   deleteBanner,
+  grantStoreMonth,
   isAdmin,
   removeProduct,
   setStoreStatus,
+  unverifyStore,
+  verifyStoreFounding,
 } from "./actions";
+import { VerifiedBadge } from "@/components/verified-badge";
 import type { Banner, Product, Store } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -120,29 +124,54 @@ export default async function AdminPage() {
       <section className="space-y-3">
         <h2 className="font-semibold">{t.allStores} ({allStores.data?.length ?? 0})</h2>
         {(allStores.data as Store[] | null)?.map((s) => (
-          <div key={s.id} className="flex items-center justify-between gap-2 rounded-lg border p-3">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{s.name}</p>
-              <p className="text-xs text-muted-foreground">
-                <Badge variant="muted">{storeStatusName(s.status, t)}</Badge>
-                {s.whatsapp ? ` · ${s.whatsapp}` : ""}
-              </p>
+          <div key={s.id} className="space-y-2 rounded-lg border p-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="flex items-center gap-1 truncate text-sm font-medium">
+                  {s.name}
+                  {s.is_verified && <VerifiedBadge className="h-4 w-4" />}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  <Badge variant="muted">{storeStatusName(s.status, t)}</Badge>
+                  {" · "}
+                  {s.plan_until
+                    ? `${t.planUntil} ${new Date(s.plan_until).toLocaleDateString("ru-RU")}`
+                    : t.noPlan}
+                </p>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                {s.status !== "approved" && (
+                  <form action={setStoreStatus}>
+                    <input type="hidden" name="id" value={s.id} />
+                    <input type="hidden" name="status" value="approved" />
+                    <Button size="sm">{t.activate}</Button>
+                  </form>
+                )}
+                {s.status === "approved" && (
+                  <form action={setStoreStatus}>
+                    <input type="hidden" name="id" value={s.id} />
+                    <input type="hidden" name="status" value="suspended" />
+                    <Button size="sm" variant="destructive">{t.suspend}</Button>
+                  </form>
+                )}
+              </div>
             </div>
-            <div className="flex shrink-0 gap-2">
-              {s.status !== "approved" && (
-                <form action={setStoreStatus}>
+            <div className="flex flex-wrap gap-2">
+              {!s.is_verified ? (
+                <form action={verifyStoreFounding}>
                   <input type="hidden" name="id" value={s.id} />
-                  <input type="hidden" name="status" value="approved" />
-                  <Button size="sm">{t.activate}</Button>
+                  <Button size="sm" variant="outline">{t.verify}</Button>
+                </form>
+              ) : (
+                <form action={unverifyStore}>
+                  <input type="hidden" name="id" value={s.id} />
+                  <Button size="sm" variant="ghost">{t.unverify}</Button>
                 </form>
               )}
-              {s.status === "approved" && (
-                <form action={setStoreStatus}>
-                  <input type="hidden" name="id" value={s.id} />
-                  <input type="hidden" name="status" value="suspended" />
-                  <Button size="sm" variant="destructive">{t.suspend}</Button>
-                </form>
-              )}
+              <form action={grantStoreMonth}>
+                <input type="hidden" name="id" value={s.id} />
+                <Button size="sm" variant="outline">{t.grantMonth}</Button>
+              </form>
             </div>
           </div>
         ))}
