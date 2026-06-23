@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Settings } from "lucide-react";
+import { Plus, Settings, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getT } from "@/lib/i18n-server";
 import { storeStatusName } from "@/lib/i18n";
@@ -91,14 +91,22 @@ async function ApprovedDashboard({
         <Stat label={t.statStoreStatus} value={storeStatusName(store.status, t)} />
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-semibold">{t.manageProducts}</h2>
-        <Link
-          href="/dashboard/products/new"
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4" /> {t.newProduct}
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/dashboard/import"
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium hover:bg-accent"
+          >
+            <Upload className="h-4 w-4" /> {t.importProducts}
+          </Link>
+          <Link
+            href="/dashboard/products/new"
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" /> {t.newProduct}
+          </Link>
+        </div>
       </div>
 
       <DashboardProducts products={products} />

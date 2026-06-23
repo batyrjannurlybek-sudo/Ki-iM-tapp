@@ -110,6 +110,36 @@ export async function setProductStatus(
   if (error) throw error;
 }
 
+export interface BulkProductItem {
+  input: ProductInput;
+  images: string[];
+}
+
+/** Bulk-create products (from a CSV/Excel import). Returns how many succeeded. */
+export async function bulkCreateProducts(storeId: string, items: BulkProductItem[]): Promise<number> {
+  const supabase = createClient();
+  let created = 0;
+  for (const item of items) {
+    const { data, error } = await supabase
+      .from("products")
+      .insert({ store_id: storeId, ...item.input })
+      .select("id")
+      .single();
+    if (error) throw error;
+    const productId = data.id as string;
+    for (let i = 0; i < item.images.length; i++) {
+      await supabase.from("product_images").insert({
+        product_id: productId,
+        url: item.images[i],
+        sort_order: i,
+        is_primary: i === 0,
+      });
+    }
+    created++;
+  }
+  return created;
+}
+
 /** Quick in-stock / out-of-stock toggle (stock_quantity 0 = out, 1 = in). */
 export async function setAvailability(productId: string, available: boolean): Promise<void> {
   const supabase = createClient();
