@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Eye, MessageCircle } from "lucide-react";
 import { getT } from "@/lib/i18n-server";
-import { getTopStores } from "@/services/stats";
+import { getTopStores, type TopStore } from "@/services/stats";
+import { getAllStores } from "@/services/stores";
 import { VerifiedBadge } from "@/components/verified-badge";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +11,20 @@ const MEDALS = ["🥇", "🥈", "🥉"];
 
 export default async function StoresPage() {
   const t = getT();
-  const stores = await getTopStores(30, 100);
+  // Gracefully fall back to a plain store list if analytics isn't migrated yet.
+  const stores: TopStore[] = await getTopStores(30, 100).catch(async () => {
+    const all = await getAllStores().catch(() => []);
+    return all.map((s) => ({
+      id: s.id,
+      name: s.name,
+      slug: s.slug,
+      logo_url: s.logo_url,
+      is_verified: s.is_verified,
+      views: 0,
+      contacts: 0,
+      score: 0,
+    }));
+  });
 
   return (
     <div className="space-y-5">

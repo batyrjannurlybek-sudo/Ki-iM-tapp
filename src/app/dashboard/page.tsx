@@ -81,8 +81,8 @@ async function ApprovedDashboard({
       .select("*")
       .eq("store_id", store.id)
       .order("created_at", { ascending: false }),
-    getStoreStats(store.id, 30),
-    getTopStores(30, 1000),
+    getStoreStats(store.id, 30).catch(() => ({ views: 0, contacts: 0 })),
+    getTopStores(30, 1000).catch(() => []),
   ]);
   const products = (data ?? []) as Product[];
   const publishedCount = products.filter((p) => p.status === "published").length;
