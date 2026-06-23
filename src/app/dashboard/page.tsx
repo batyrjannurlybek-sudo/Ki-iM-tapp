@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { DashboardProducts } from "@/components/dashboard/dashboard-products";
 import { StoreLogoUploader } from "@/components/dashboard/store-logo-uploader";
 import { StoreRegisterForm } from "@/components/dashboard/store-register-form";
+import { getStoreStats, getTopStores } from "@/services/stats";
 import { signOut } from "./actions";
 import type { Product, Store } from "@/types";
 import type { Dict as TDict } from "@/lib/i18n";
@@ -74,21 +75,34 @@ async function ApprovedDashboard({
   supabase: ReturnType<typeof createClient>;
   t: TDict;
 }) {
-  const { data } = await supabase
-    .from("products_with_media")
-    .select("*")
-    .eq("store_id", store.id)
-    .order("created_at", { ascending: false });
+  const [{ data }, stats, top] = await Promise.all([
+    supabase
+      .from("products_with_media")
+      .select("*")
+      .eq("store_id", store.id)
+      .order("created_at", { ascending: false }),
+    getStoreStats(store.id, 30),
+    getTopStores(30, 1000),
+  ]);
   const products = (data ?? []) as Product[];
   const publishedCount = products.filter((p) => p.status === "published").length;
+  const rankIndex = top.findIndex((s) => s.id === store.id);
+  const rank = rankIndex >= 0 ? rankIndex + 1 : top.length + 1;
 
   return (
     <div className="space-y-6">
-      {/* Stats */}
+      {/* Catalog stats */}
       <div className="grid grid-cols-3 gap-3">
         <Stat label={t.statTotal} value={String(products.length)} />
         <Stat label={t.statPublished} value={String(publishedCount)} />
         <Stat label={t.statStoreStatus} value={storeStatusName(store.status, t)} />
+      </div>
+
+      {/* Competition stats (last 30 days) */}
+      <div className="grid grid-cols-3 gap-3">
+        <Stat label={t.statViews} value={String(stats.views)} />
+        <Stat label={t.statContacts} value={String(stats.contacts)} />
+        <Stat label={t.yourRank} value={`#${rank}`} />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">

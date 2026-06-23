@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AlertTriangle, MapPin, MessageCircle, Store as StoreIcon } from "lucide-react";
 import { ProductGallery } from "@/components/product-gallery";
+import { TrackView } from "@/components/track-view";
+import { ContactLink } from "@/components/contact-link";
 import { Badge } from "@/components/ui/badge";
 import type { Metadata } from "next";
 import { getProductById } from "@/services/products";
@@ -43,6 +45,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
+      <TrackView storeId={store?.id ?? null} productId={product.id} />
       <ProductGallery images={product.images} videoUrl={product.videos[0] ?? null} title={product.title} />
 
       <div className="space-y-5">
@@ -99,14 +102,14 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {wa && (
-                <a
+                <ContactLink
                   href={wa}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  storeId={store.id}
+                  productId={product.id}
                   className="flex h-11 items-center justify-center gap-2 rounded-lg bg-[#25D366] text-sm font-medium text-white hover:bg-[#1ebe5b]"
                 >
                   <MessageCircle className="h-4 w-4" /> {t.whatsapp}
-                </a>
+                </ContactLink>
               )}
               {maps && (
                 <a

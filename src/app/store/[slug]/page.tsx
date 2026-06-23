@@ -4,6 +4,7 @@ import { ProductGrid } from "@/components/product-grid";
 import type { Metadata } from "next";
 import { getStoreBySlug, getStoreProducts } from "@/services/stores";
 import { VerifiedBadge } from "@/components/verified-badge";
+import { ContactLink } from "@/components/contact-link";
 import { mapsLink, whatsappLink } from "@/lib/utils";
 import { getT } from "@/lib/i18n-server";
 import { tpl } from "@/lib/i18n";
@@ -63,10 +64,10 @@ export default async function StorePage({ params }: { params: { slug: string } }
 
       <div className="flex flex-wrap gap-2">
         {wa && (
-          <a href={wa} target="_blank" rel="noopener noreferrer"
+          <ContactLink href={wa} storeId={store.id}
             className="flex h-10 items-center gap-2 rounded-lg bg-[#25D366] px-4 text-sm font-medium text-white">
             <MessageCircle className="h-4 w-4" /> {t.whatsapp}
-          </a>
+          </ContactLink>
         )}
         {maps && (
           <a href={maps} target="_blank" rel="noopener noreferrer"
